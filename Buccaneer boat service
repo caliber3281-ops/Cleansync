@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Buccaneer Boat Care — Scheduler & Quotes</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0A1838"/>
+  <link rel="icon" href="data:image/svg+xml;utf8,
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'>
+      <rect width='128' height='128' rx='18' fill='%230A1838'/>
+      <g fill='white'>
+        <line x1='16' y1='64' x2='112' y2='64' stroke='white' stroke-width='6'/>
+        <line x1='64' y1='16' x2='64' y2='112' stroke='white' stroke-width='6'/>
+        <line x1='32' y1='32' x2='96' y2='96' stroke='white' stroke-width='6'/>
+        <line x1='32' y1='96' x2='96' y2='32' stroke='white' stroke-width='6'/>
+        <rect x='62' y='34' width='4' height='60' fill='white'/>
+        <polygon points='64,34 40,60 64,60' />
+        <polygon points='64,60 96,84 64,84' />
+        <polygon points='32,100 96,100 84,110 44,110' />
+      </g>
+    </svg>">
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin:0; background:#0b1020; color:#e9eef7;}
+    header { position:sticky; top:0; backdrop-filter: blur(8px); background: rgba(11,16,32,0.7); border-bottom:1px solid #1b2440; z-index:10; }
+    .wrap{ max-width:1100px; margin:0 auto; padding:16px;}
+    h1{ font-size:1.25rem; margin:0; }
+    .tabs{ display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;}
+    .tab{ padding:8px 12px; border:1px solid #263154; border-radius:10px; cursor:pointer; }
+    .tab.active{ background:#1c2750; }
+    .card{ background:#0f1733; border:1px solid #1b2440; border-radius:14px; padding:16px; margin:16px 0; }
+    button{ background:#2A7FFF; color:white; border:0; border-radius:10px; padding:10px 14px; cursor:pointer; }
+    button.secondary{ background:#182247; border:1px solid #2a7fff55; }
+    input, select, textarea{ width:100%; background:#0b132c; color:#e9eef7; border:1px solid #263154; border-radius:10px; padding:10px; }
+    label{ display:block; font-size:0.9rem; margin:10px 0 6px; color:#c9d4ef;}
+    table{ width:100%; border-collapse: collapse; }
+    th, td{ border-bottom:1px solid #1b2440; padding:8px; text-align:left; vertical-align: top; }
+    .row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .row3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+    .pill{ display:inline-block; padding:4px 8px; border-radius:999px; background:#13214a; font-size:0.8rem; border:1px solid #24407a; }
+    .footer{ opacity:0.75; font-size:0.85rem; margin:24px 0; }
+    .actions{ display:flex; gap:8px; flex-wrap:wrap; }
+    @media (max-width:800px){ .row, .row3{ grid-template-columns:1fr; } }
+    @media print{ header, .tabs, .actions, .no-print { display:none !important; } body{ background:#fff; color:#000; } .card{ border:0; } }
+  </style>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="no-print">
+    <div class="wrap">
+      <h1>Buccaneer Boat Care <span class="pill">Scheduler & Quotes</span></h1>
+      <div class="tabs">
+        <div class="tab active" data-tab="book">📅 Bookings</div>
+        <div class="tab" data-tab="quotes">🧾 Quotes</div>
+        <div class="tab" data-tab="clients">👥 Clients</div>
+        <div class="tab" data-tab="settings">⚙️ Settings</div>
+        <div class="tab" data-tab="about">❓ About</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- Bookings -->
+    <section class="card" id="tab-book">
+      <h2>New Booking</h2>
+      <div class="row">
+        <div>
+          <label>Client</label>
+          <input list="clientList" id="bk-client" placeholder="Start typing or add new..." />
+          <datalist id="clientList"></datalist>
+        </div>
+        <div>
+          <label>Job Type</label>
+          <select id="bk-type">
+            <option>Marine — Buff & Wax</option>
+            <option>Marine — Gelcoat Repair</option>
+            <option>Marine — Wet Sanding</option>
+            <option>RV — Exterior Detail</option>
+            <option>Residential — Deep Clean</option>
+            <option>Residential — Standard Clean</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="row3">
+        <div><label>Date</label><input type="date" id="bk-date"/></div>
+        <div><label>Start Time</label><input type="time" id="bk-time"/></div>
+        <div><label>Estimated Hours</label><input type="number" id="bk-hours" min="1" step="0.5" value="3"/></div>
+      </div>
+      <div class="row">
+        <div><label>Location</label><input id="bk-location" placeholder="Address / Marina / Dock #"/></div>
+        <div><label>Notes</label><input id="bk-notes" placeholder="Access, materials, special requests..."/></div>
+      </div>
+      <div class="actions no-print" style="margin-top:10px;">
+        <button id="bk-add">Add Booking</button>
+        <button class="secondary" id="bk-export">Export CSV</button>
+        <button class="secondary" id="bk-export-ics">Export iCalendar (.ics)</button>
+        <button class="secondary" id="bk-clear">Clear All</button>
+      </div>
+
+      <h3 style="margin-top:18px;">Upcoming</h3>
+      <table id="bk-table">
+        <thead><tr><th>Date</th><th>Client</th><th>Type</th><th>Hours</th><th>Est. Price</th><th>Actions</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Quotes -->
+    <section class="card" id="tab-quotes" hidden>
+      <h2>Quick Quote</h2>
+      <div class="row3">
+        <div>
+          <label>Work Category</label>
+          <select id="qt-category">
+            <option value="hourly">Hourly (fiberglass jobs)</option>
+            <option value="area">By Area (buff & wax)</option>
+            <option value="flat">Flat</option>
+          </select>
+        </div>
+        <div><label>Rate (per hr or per sq ft)</label><input type="number" id="qt-rate" step="1" value="125"/></div>
+        <div><label>Tax % (HST)</label><input type="number" id="qt-tax" step="0.01" value="13"/></div>
+      </div>
+      <div class="row3" id="qt-inputs">
+        <div><label>Hours (or Area)</label><input type="number" id="qt-hours" step="0.5" value="4"/></div>
+        <div><label>Materials ($)</label><input type="number" id="qt-materials" step="1" value="0"/></div>
+        <div><label>Discount ($)</label><input type="number" id="qt-discount" step="1" value="0"/></div>
+      </div>
+      <div class="row">
+        <div><label>Client (optional)</label><input list="clientList" id="qt-client" placeholder="Search saved clients"/></div>
+        <div><label>Internal Notes</label><input id="qt-notes" placeholder="Scope, materials, travel..."/></div>
+      </div>
+      <div class="actions no-print" style="margin-top:10px;">
+        <button id="qt-calc">Calculate</button>
+        <button class="secondary" id="qt-save">Save Quote</button>
+        <button class="secondary" id="qt-export">Export Quotes CSV</button>
+      </div>
+      <div class="card" style="margin-top:14px;">
+        <div id="qt-summary">Enter details and click Calculate.</div>
+      </div>
+
+      <h3>Saved Quotes</</h3>
+      <table id="qt-table">
+        <thead><tr><th>#</th><th>Date</th><th>Client</th><th>Total</th><th>Notes</th><th>Actions</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Clients -->
+    <section class="card" id="tab-clients" hidden>
+      <h2>Clients</h2>
+      <div class="row">
+        <div><label>Name</label><input id="cl-name" placeholder="Full name"/></div>
+        <div><label>Phone</label><input id="cl-phone" placeholder="+1 705-555-5555"/></div>
+      </div>
+      <div class="row">
+        <div><label>Email</label><input id="cl-email" placeholder="name@example.com"/></div>
+        <div><label>Default Rate ($/hr)</label><input type="number" id="cl-rate" value="125"/></div>
+      </div>
+      <div class="row">
+        <div><label>Address / Marina</label><input id="cl-addr" placeholder="Address, marina & slip #, etc."/></div>
+        <div><label>Notes</label><input id="cl-notes" placeholder="Gate code, pets, boat length, gelcoat condition..."/></div>
+      </div>
+      <div class="actions no-print" style="margin-top:10px;">
+        <button id="cl-add">Add Client</button>
+        <button class="secondary" id="cl-export">Export CSV</button>
+        <button class="secondary" id="cl-clear">Clear All</button>
+      </div>
+      <table id="cl-table" style="margin-top:12px;">
+        <thead><tr><th>Name</th><th>Contact</th><th>Rate</th><th>Notes</th><th>Actions</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Settings -->
+    <section class="card" id="tab-settings" hidden>
+      <h2>Settings</h2>
+      <div class="row3">
+        <div><label>Default Hourly Rate ($/hr)</label><input type="number" id="set-rate" value="125"/></div>
+        <div><label>Default Area Rate ($/sq ft)</label><input type="number" id="set-area" value="35"/></div>
+        <div><label>Default Tax %</label><input type="number" id="set-tax" value="13"/></div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Backup / Restore</label>
+          <div class="actions">
+            <button id="set-backup">Download Backup</button>
+            <label class="pill" style="cursor:pointer;">
+              <input id="set-restore" type="file" accept="application/json" hidden /> Restore…
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Install</label>
+          <div class="actions">
+            <button id="set-install" class="secondary">Install App</button>
+            <span id="install-hint" class="pill">Open over HTTP(S) to enable install</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section class="card" id="tab-about" hidden>
+      <h2>About Buccaneer Boat Care</h2>
+      <p>Local-first, offline-ready scheduler and quote tool for boats & RVs. Data is stored locally in your browser.</p>
+      <ul>
+        <li>Bookings with quick price estimates + iCalendar export</li>
+        <li>Quotes with printable invoices</li>
+        <li>Client list with export</li>
+        <li>Backup/restore, CSV export</li>
+        <li>Installable (PWA): Add to Home Screen on mobile</li>
+      </ul>
+      <p class="footer">© 2025 — Buccaneer Boat Care · Making stuff shine since 2009</p>
+    </section>
+  </main>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+      });
+    }
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>
